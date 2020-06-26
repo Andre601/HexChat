@@ -62,7 +62,7 @@ public class HexChat extends JavaPlugin{
     private void sendBanner(){
         sendColor("&4 _    _            _____ _           _");
         sendColor("&c| |  | |          / ____| |         | |");
-        sendColor("&6| |__| | _____  _| |    | |__   __ _| |");
+        sendColor("&6| |__| | _____  _| |    | |__   __ _| |_");
         sendColor("&e|  __  |/ _ \\ \\/ / |    | '_ \\ / _` | __|");
         sendColor("&a| |  | |  __/>  <| |____| | | | (_| | |_");
         sendColor("&2|_|  |_|\\___/_/\\_\\\\_____|_| |_|\\__,_|\\__|");

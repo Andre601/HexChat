@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.andre601'
-version = new Version(major: 1, minor: 0, revision: 1)
+version = new Version(major: 1, minor: 0, revision: 2)
 
 sourceCompatibility = 1.8
 
@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    implementation(group: 'me.clip', name: 'placeholderapi', version: '2.10.4')
-    implementation(group: 'org.spigotmc', name: 'spigot-api', version: '1.16.1-R0.1-SNAPSHOT')
+    compileOnly(group: 'me.clip', name: 'placeholderapi', version: '2.10.4')
+    compileOnly(group: 'org.spigotmc', name: 'spigot-api', version: '1.16.1-R0.1-SNAPSHOT')
 }
 
 class Version{
