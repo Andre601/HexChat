@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class ChatEvent implements Listener{
     
     private final HexChat plugin;
-    Pattern colorPattern = Pattern.compile("(#[a-fA-F0-9]{6})");
+    Pattern colorPattern = Pattern.compile("(?<!\\\\)(#([a-fA-F0-9]{6}))");
     
     public ChatEvent(HexChat plugin){
         this.plugin = plugin;
@@ -31,12 +31,22 @@ public class ChatEvent implements Listener{
         if(format == null)
             return;
         
-        String msg = ChatColor.translateAlternateColorCodes('&', event.getMessage());
+        String msg = event.getMessage();
+        if(player.hasPermission("hexchat.color.code") || player.hasPermission("hexchat.color.all"))
+            msg = ChatColor.translateAlternateColorCodes('&', msg);
+        
         Matcher matcher = colorPattern.matcher(msg);
         if(matcher.find()){
             StringBuffer buffer = new StringBuffer();
             do{
-                matcher.appendReplacement(buffer, "" + ChatColor.of(matcher.group(1)));
+                if(player.hasPermission("hexchat.color.all"))
+                    matcher.appendReplacement(buffer, "" + ChatColor.of(matcher.group(1)));
+                else 
+                if(player.hasPermission("hexchat.color.hex"))
+                    matcher.appendReplacement(buffer, "" + ChatColor.of(matcher.group(1)));
+                else
+                if(player.hasPermission("hexchat.color.hex." + matcher.group(2))) 
+                    matcher.appendReplacement(buffer, "" + ChatColor.of(matcher.group(1)));
             }while(matcher.find());
             
             matcher.appendTail(buffer);

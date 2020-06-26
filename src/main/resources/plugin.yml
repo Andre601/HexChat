@@ -1,6 +1,6 @@
 name: HexChat
 author: Andre_601
-version: '1.0.0'
+version: '1.0.1'
 
 api-version: '1.16'
 
@@ -13,3 +13,15 @@ permissions:
   hexchat.format.default:
     default: true
     description: 'The default permission for the chat format'
+  hexchat.color.all:
+    default: op
+    description: 'Allows the usage of all hex codes and normal color/formatting codes'
+    children: 
+      hexchat.color.code: true
+      hexchat.color.hex: true
+  hexchat.color.code:
+    default: op
+    description: 'Allows the usage of all color and formatting codes in chat'
+  hexchat.color.hex:
+    default: op
+    description: 'Allows the usage of all hex codes in chat'
