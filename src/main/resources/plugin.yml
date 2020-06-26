@@ -1,0 +1,15 @@
+name: HexChat
+author: Andre_601
+version: '1.0.0'
+
+api-version: '1.16'
+
+main: 'com.andre601.hexchat.HexChat'
+
+softdepend:
+- PlaceholderAPI
+
+permissions: 
+  hexchat.format.default:
+    default: true
+    description: 'The default permission for the chat format'

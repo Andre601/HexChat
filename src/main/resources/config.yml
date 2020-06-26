@@ -1,0 +1,98 @@
+#
+#
+# This section allows you to set the various chat formats that can be applied to players with permissions.
+#
+# Each section supports the following inbuilt placeholders of the plugin:
+# - %msg%     ->  The message that was send.
+# - %player%  ->  The name of the player.
+# - %world%   ->  The name of the world the player is in.
+#
+formats:
+  #
+  # Each format name has to be a unique name that can be assigned through the permission chatpalette.format.<format>
+  # You need to keep one format called "default" that will be applied if the player doesn't have permission for any of
+  # the other formats.
+  #
+  default:
+    #
+    # Each section needs to be a unique name similar to the format name.
+    # How it is called is actually not important as long as it is a string.
+    #
+    worldStart:
+      #
+      # The text to display in chat.
+      #
+      # You can use placeholders from both this plugin and PlaceholderAPI.
+      #
+      text: '['
+    worldBody:
+      #
+      # The text to display in chat.
+      #
+      # You can use placeholders from both this plugin and PlaceholderAPI.
+      #
+      text: '%world%'
+      #
+      # The primary color to display the above text in.
+      # This can be overriden using any normal chat color code in the above text section. Leaving this away/empty
+      # defaults to WHITE
+      #
+      # For all available chat color names, check this page:
+      # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/ChatColor.html
+      #
+      # Thanks to 1.16 can you also use ANY hexadecimal color code available, by starting the String with a # followed
+      # by a 6 character hex code (f.e. #FF0000 for red)
+      #
+      color: '#2980B9'
+    worldEnd:
+      #
+      # The text to display in chat.
+      #
+      # You can use placeholders from both this plugin and PlaceholderAPI.
+      #
+      text: '] '
+    name:
+      #
+      # The text to display in chat.
+      #
+      # You can use placeholders from both this plugin and PlaceholderAPI.
+      #
+      text: '%player%'
+      #
+      # The primary color to display the above text in.
+      # This can be overriden using any normal chat color code in the above text section. Leaving this away/empty
+      # defaults to WHITE
+      #
+      # For all available chat color names, check this page:
+      # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/ChatColor.html
+      #
+      # Thanks to 1.16 can you also use ANY hexadecimal color code available, by starting the String with a # followed
+      # by a 6 character hex code (f.e. #FF0000 for red)
+      #
+      color: '#00ff00'
+    separator:
+      #
+      # The text to display in chat.
+      #
+      # You can use placeholders from both this plugin and PlaceholderAPI.
+      #
+      text: ': '
+    msg:
+      #
+      # The text to display in chat.
+      #
+      # You can use placeholders from both this plugin and PlaceholderAPI.
+      #
+      text: '%msg%'
+      #
+      # The primary color to display the above text in.
+      # This can be overriden using any normal chat color code in the above text section. Leaving this away/empty
+      # defaults to WHITE
+      #
+      # For all available chat color names, check this page:
+      # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/ChatColor.html
+      #
+      # Thanks to 1.16 can you also use ANY hexadecimal color code available, by starting the String with a # followed
+      # by a 6 character hex code (f.e. #FF0000 for red)
+      #
+      color: '#95a5a6'
