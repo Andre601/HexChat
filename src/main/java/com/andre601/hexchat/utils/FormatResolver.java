@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 public class FormatResolver{
     
     private final HexChat plugin;
+    
     private final Pattern colorPattern = Pattern.compile("(?<!\\\\)(#[a-fA-F0-9]{6})");
     
     public FormatResolver(HexChat plugin){
@@ -76,6 +77,12 @@ public class FormatResolver{
     private String parseString(Player player, String text){
         text = text.replace("%player%", player.getName())
                    .replace("%world%", player.getWorld().getName());
+        
+        Matcher matcher = colorPattern.matcher(text);
+        if(matcher.find())
+            text = text.replaceAll(colorPattern.pattern(), "" + ChatColor.of(matcher.group(1)));
+        
+        text = ChatColor.translateAlternateColorCodes('&', text);
         
         return plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
     }

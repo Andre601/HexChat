@@ -69,7 +69,7 @@ formats:
       # Thanks to 1.16 can you also use ANY hexadecimal color code available, by starting the String with a # followed
       # by a 6 character hex code (f.e. #FF0000 for red)
       #
-      color: '#00ff00'
+      color: '#00FF00'
     separator:
       #
       # The text to display in chat.
@@ -95,4 +95,4 @@ formats:
       # Thanks to 1.16 can you also use ANY hexadecimal color code available, by starting the String with a # followed
       # by a 6 character hex code (f.e. #FF0000 for red)
       #
-      color: '#95a5a6'
+      color: '#95A5A6'
