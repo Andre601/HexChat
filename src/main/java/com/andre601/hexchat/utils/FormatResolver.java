@@ -31,7 +31,7 @@ public class FormatResolver{
                 continue;
             
             StringBuilder builder = new StringBuilder();
-            ConfigurationSection formatSection = plugin.getConfig().getConfigurationSection("formats." + formatKey);
+            ConfigurationSection formatSection = formats.getConfigurationSection(formatKey);
             if(formatSection == null)
                 continue;
             
