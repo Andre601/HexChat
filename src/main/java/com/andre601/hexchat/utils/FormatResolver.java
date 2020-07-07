@@ -19,7 +19,6 @@ public class FormatResolver{
         this.plugin = plugin;
     }
     
-    
     public String resolve(Player player){
         String format = null;
         
@@ -78,12 +77,12 @@ public class FormatResolver{
         text = text.replace("%player%", player.getName())
                    .replace("%world%", player.getWorld().getName());
         
+        text = plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
+        
         Matcher matcher = colorPattern.matcher(text);
         if(matcher.find())
             text = text.replaceAll(colorPattern.pattern(), "" + ChatColor.of(matcher.group(1)));
         
-        text = ChatColor.translateAlternateColorCodes('&', text);
-        
-        return plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
+        return ChatColor.translateAlternateColorCodes('&', text);
     }
 }
