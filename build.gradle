@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.andre601'
-version = new Version(major: 1, minor: 0, revision: 4)
+version = new Version(major: 1, minor: 0, revision: 5)
 
 sourceCompatibility = 1.8
 

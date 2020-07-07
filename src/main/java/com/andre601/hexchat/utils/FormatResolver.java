@@ -27,7 +27,7 @@ public class FormatResolver{
             return null;
         
         for(String formatKey : formats.getKeys(false)){
-            if(!player.hasPermission("chatpalette.format." + formatKey) && !formatKey.equals("default"))
+            if(!player.hasPermission("hexchat.format." + formatKey) && !formatKey.equals("default"))
                 continue;
             
             StringBuilder builder = new StringBuilder();
