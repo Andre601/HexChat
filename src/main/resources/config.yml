@@ -44,6 +44,26 @@ formats:
       # by a 6 character hex code (f.e. #FF0000 for red)
       #
       color: '#2980B9'
+      #
+      # Allows you to apply a hover action for this section.
+      #
+      hover:
+        #
+        # What type of hover action this would be.
+        #
+        # Available options:
+        # - text        -> Display a text on hover.
+        # - achievement -> Display an achievement/advancement on hover.
+        #
+        type: 'text'
+        #
+        # The value(s) to display.
+        # The type of this field depends on the above set type.
+        # 'text' makes this a String list and 'achievement' makes this a single String.
+        #
+        value:
+        - '&7This Player is currently in'
+        - '&7the world &b%world%'
     worldEnd:
       #
       # The text to display in chat.
@@ -70,6 +90,40 @@ formats:
       # by a 6 character hex code (f.e. #FF0000 for red)
       #
       color: '#00FF00'
+      #
+      # Allows you to apply a hover action for this section.
+      #
+      hover:
+        #
+        # What type of hover action this would be.
+        #
+        # Available options:
+        # - text        -> Display a text on hover.
+        # - achievement -> Display an achievement/advancement on hover.
+        #
+        type: 'text'
+        #
+        # The value(s) to display.
+        # The type of this field depends on the above set type.
+        # 'text' makes this a String list and 'achievement' makes this a single String.
+        #
+        value:
+        - '&7Click to send the player a message!'
+      #
+      # Allows you to apply a click action for this section.
+      #
+      click:
+        #
+        # What type of click action this would be.
+        #
+        # Available options:
+        # - execute -> Executes a command as the player clicking on it.
+        # - suggest -> Suggests a command to the player (puts it into the players chatbox)
+        # - copy    -> Copies the provided text into the player's clipboard.
+        #              This can only be used on 1.15+ and will default to 'suggest' when used on 1.14 or older.
+        #
+        type: 'suggest'
+        value: '/msg %player% '
     separator:
       #
       # The text to display in chat.

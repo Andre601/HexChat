@@ -2,16 +2,21 @@ package com.andre601.hexchat.utils;
 
 import com.andre601.hexchat.HexChat;
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.rayzr522.jsonmessage.JSONMessage;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FormatResolver{
     
     private final HexChat plugin;
+    private final Map<String, JSONMessage> formats = new LinkedHashMap<>();
     
     private final Pattern colorPattern = Pattern.compile("(?<!\\\\)(#[a-fA-F0-9]{6})");
     
@@ -19,19 +24,14 @@ public class FormatResolver{
         this.plugin = plugin;
     }
     
-    public String resolve(Player player){
-        String format = null;
+    public void loadFormats(){
+        ConfigurationSection formatsSection = plugin.getConfig().getConfigurationSection("formats");
+        if(formatsSection == null)
+            return;
         
-        ConfigurationSection formats = plugin.getConfig().getConfigurationSection("formats");
-        if(formats == null)
-            return null;
-        
-        for(String formatKey : formats.getKeys(false)){
-            if(!player.hasPermission("hexchat.format." + formatKey) && !formatKey.equals("default"))
-                continue;
-            
-            StringBuilder builder = new StringBuilder();
-            ConfigurationSection formatSection = formats.getConfigurationSection(formatKey);
+        for(String formatKey : formatsSection.getKeys(false)){
+            JSONMessage json = JSONMessage.create();
+            ConfigurationSection formatSection = formatsSection.getConfigurationSection(formatKey);
             if(formatSection == null)
                 continue;
             
@@ -47,41 +47,94 @@ public class FormatResolver{
                 if(text == null || text.isEmpty())
                     continue;
                 
-                ChatColor color = ChatColor.WHITE;
+                json.then(text);
+                
+                String color = "white";
                 if(section.get("color") != null){
                     String value = section.getString("color");
                     if(value == null || value.isEmpty()){
-                        builder.append(color).append(parseString(player, text));
+                        json.color(color);
                         continue;
                     }
                     
                     Matcher matcher = colorPattern.matcher(value);
                     if(matcher.matches()){
-                        color = ChatColor.of(matcher.group(1));
-                    }else{
-                        try{
-                            color = ChatColor.of(value);
-                        }catch(IllegalArgumentException ignored){}
+                        color = matcher.group(1);
                     }
                 }
-                builder.append(color).append(parseString(player, text));
+                json.color(color);
                 
-                format = builder.toString();
+                if(section.get("hover") != null){
+                    if(section.get("hover.type") != null){
+                        String type = section.getString("hover.type");
+                        if(type != null && !type.isEmpty()){
+                            switch(type.toLowerCase()){
+                                case "text":
+                                    List<String> values = section.getStringList("hover.value");
+                                    if(!values.isEmpty())
+                                        json.tooltip(formatList(values));
+                                    break;
+                                
+                                case "achievement":
+                                case "advancement":
+                                    String value = section.getString("hover.value");
+                                    if(value != null && !value.isEmpty())
+                                        json.achievement(value);
+                                    break;
+                            }
+                        }
+                    }
+                }
+                
+                if(section.get("click") != null){
+                    if(section.get("click.type") != null){
+                        String type = section.getString("click.type");
+                        if(type != null && !type.isEmpty()){
+                            switch(type.toLowerCase()){
+                                case "execute":
+                                    String cmd = section.getString("click.value");
+                                    if(cmd != null && !cmd.isEmpty())
+                                        json.runCommand(cmd);
+                                    break;
+                                
+                                case "suggest":
+                                    String suggestion = section.getString("click.value");
+                                    if(suggestion != null && !suggestion.isEmpty())
+                                        json.suggestCommand(suggestion);
+                                    break;
+                                
+                                case "copy":
+                                    String copy = section.getString("click.value");
+                                    if(copy != null && !copy.isEmpty())
+                                        json.copyText(copy);
+                                    break;
+                            }
+                        }
+                    }
+                }
+                
+                formats.put(formatKey, json);
             }
         }
-        
-        return format;
+    }
+
+    public Map<String, JSONMessage> getFormats(){
+        return formats;
+    }
+
+    private String formatList(List<String> list){
+        return formatString(String.join("\n", list));
     }
     
-    private String parseString(Player player, String text){
+    private String formatString(String text){
+        return ChatColor.translateAlternateColorCodes('&', text);
+    }
+    
+    public String parseString(Player player, String text){
         text = text.replace("%player%", player.getName())
                    .replace("%world%", player.getWorld().getName());
         
         text = plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
-        
-        Matcher matcher = colorPattern.matcher(text);
-        if(matcher.find())
-            text = text.replaceAll(colorPattern.pattern(), "" + ChatColor.of(matcher.group(1)));
         
         return ChatColor.translateAlternateColorCodes('&', text);
     }

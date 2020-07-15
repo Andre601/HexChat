@@ -1,6 +1,8 @@
 package com.andre601.hexchat.events;
 
 import com.andre601.hexchat.HexChat;
+import com.andre601.hexchat.utils.ReflectionHelper;
+import me.rayzr522.jsonmessage.JSONMessage;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,13 +10,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class ChatEvent implements Listener{
     
     private final HexChat plugin;
-    Pattern colorPattern = Pattern.compile("(?<!\\\\)(#([a-fA-F0-9]{6}))");
     
     public ChatEvent(HexChat plugin){
         this.plugin = plugin;
@@ -27,7 +25,13 @@ public class ChatEvent implements Listener{
             return;
         
         Player player = event.getPlayer();
-        String format = plugin.getFormatResolver().resolve(player);
+
+        JSONMessage format = null;
+        for(String name : plugin.getFormatResolver().getFormats().keySet()){
+            if(player.hasPermission("hexchat.format." + name))
+                format = plugin.getFormatResolver().getFormats().get(name);
+        }
+        
         if(format == null)
             return;
         
@@ -35,28 +39,12 @@ public class ChatEvent implements Listener{
         if(player.hasPermission("hexchat.color.code") || player.hasPermission("hexchat.color.all"))
             msg = ChatColor.translateAlternateColorCodes('&', msg);
         
-        Matcher matcher = colorPattern.matcher(msg);
-        if(matcher.find()){
-            StringBuffer buffer = new StringBuffer();
-            do{
-                if(player.hasPermission("hexchat.color.all"))
-                    matcher.appendReplacement(buffer, "" + ChatColor.of(matcher.group(1)));
-                else 
-                if(player.hasPermission("hexchat.color.hex"))
-                    matcher.appendReplacement(buffer, "" + ChatColor.of(matcher.group(1)));
-                else
-                if(player.hasPermission("hexchat.color.hex." + matcher.group(2))) 
-                    matcher.appendReplacement(buffer, "" + ChatColor.of(matcher.group(1)));
-            }while(matcher.find());
-            
-            matcher.appendTail(buffer);
-            msg = buffer.toString();
-        }
-        
         event.setCancelled(true);
-        
-        for(Player recipient : event.getRecipients())
-            recipient.sendMessage(format.replace("%msg%", msg));
+
+        String json = plugin.getFormatResolver().parseString(player, format.toString()).replace("%msg%", msg);
+
+        Player[] players = event.getRecipients().toArray(new Player[0]);
+        ReflectionHelper.sendPacket(ReflectionHelper.createTextPacket(json), players);
         
         plugin.send("<%s> %s", event.getPlayer().getName(), event.getMessage());
     }

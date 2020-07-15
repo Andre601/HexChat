@@ -35,8 +35,12 @@ public class HexChat extends JavaPlugin{
         }
         
         formatResolver = new FormatResolver(this);
+        send("Loading formats...");
+        formatResolver.loadFormats();
+        send("All formats have been loaded.");
+        
         new ChatEvent(this);
-        sendColor("Enabled Events.");
+        send("Enabled Events.");
         
         sendColor("&aSuccessfully enabled %s v%s", getName(), getDescription().getVersion());
     }
