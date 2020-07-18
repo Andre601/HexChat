@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.andre601'
-version = new Version(major: 1, minor: 1, revision: 0)
+version = new Version(major: 1, minor: 2, revision: 0)
 
 sourceCompatibility = 1.8
 
@@ -19,10 +19,12 @@ dependencies {
     compileOnly(group: 'me.clip', name: 'placeholderapi', version: '2.10.4')
     compileOnly(group: 'org.spigotmc', name: 'spigot-api', version: '1.16.1-R0.1-SNAPSHOT')
     compile(group: 'me.rayzr522', name: 'jsonmessage', version: '1.2.1')
+    compile(group: 'me.mattstudios.utils', name: 'matt-framework', version: '1.3')
 }
 
 shadowJar{
     relocate('me.rayzr522', 'com.andre601.hexchat.dependencies')
+    relocate('me.mattstudios.utils', 'com.andre601.hexchat.dependencies')
 }
 
 class Version{

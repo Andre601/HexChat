@@ -1,6 +1,6 @@
 name: HexChat
 author: Andre_601
-version: '1.1.0'
+version: '1.2.0'
 
 api-version: '1.16'
 
@@ -13,15 +13,33 @@ permissions:
   hexchat.format.default:
     default: true
     description: 'The default permission for the chat format'
-  hexchat.color.all:
+  hexchat.*:
     default: op
-    description: 'Allows the usage of all hex codes and normal color/formatting codes'
+    description: 'Gives access to all HexChat permissions'
     children: 
-      hexchat.color.code: true
-      hexchat.color.hex: true
-  hexchat.color.code:
+      hexchat.admin: true
+  hexchat.admin:
     default: op
-    description: 'Allows the usage of all color and formatting codes in chat'
-  hexchat.color.hex:
+    description: 'Gives access to all HexChat permissions'
+    children: 
+      hexchat.command.*: true
+      hexchat.color: true
+  hexchat.command.*:
     default: op
-    description: 'Allows the usage of all hex codes in chat'
+    description: 'Gives access to all HexChat Command permissions'
+    children: 
+      hexchat.command.help: true
+      hexchat.command.reload: true
+      hexchat.command.formats: true
+  hexchat.command.help:
+    default: op
+    description: 'Gives access to /hexchat help [command]'
+  hexchat.command.reload:
+    default: op
+    description: 'Gives access to /hexchat reload'
+  hexchat.command.formats:
+    default: op
+    description: 'Gives access to /hexchat formats'
+  hexchat.color:
+    default: op
+    description: 'Allows the usage of color and formatting codes in messages.'

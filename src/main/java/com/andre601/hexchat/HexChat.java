@@ -1,11 +1,15 @@
 package com.andre601.hexchat;
 
+import com.andre601.hexchat.commands.CmdHexChat;
 import com.andre601.hexchat.events.ChatEvent;
 import com.andre601.hexchat.utils.FormatResolver;
+import me.mattstudios.mf.base.CommandManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Arrays;
 
 public class HexChat extends JavaPlugin{
     
@@ -31,16 +35,21 @@ public class HexChat extends JavaPlugin{
         
         if(manager.isPluginEnabled("PlaceholderAPI")){
             placeholderApiEnabled = true;
-            send("Found PlaceholderAPI! Placeholder support enabled.");
+            sendColor("Found PlaceholderAPI! Placeholder support enabled.");
         }
         
         formatResolver = new FormatResolver(this);
-        send("Loading formats...");
+        sendColor("Loading formats...");
         formatResolver.loadFormats();
-        send("All formats have been loaded.");
-        
+        sendColor("All formats have been loaded.");
+
+        sendColor("Loading Events...");
         new ChatEvent(this);
-        send("Enabled Events.");
+        sendColor("Enabled Events.");
+
+        sendColor("Loading command /hexchat...");
+        setupCommands();
+        sendColor("Command loaded.");
         
         sendColor("&aSuccessfully enabled %s v%s", getName(), getDescription().getVersion());
     }
@@ -61,6 +70,14 @@ public class HexChat extends JavaPlugin{
     
     public void sendColor(String msg, Object... args){
         send("[" + getName() + "] " + ChatColor.translateAlternateColorCodes('&', msg), args);
+    }
+    
+    private void setupCommands(){
+        CommandManager manager = new CommandManager(this);
+        
+        manager.getCompletionHandler().register("#cmds", input -> Arrays.asList("help", "reload", "formats"));
+        
+        manager.register(new CmdHexChat(this));
     }
     
     private void sendBanner(){

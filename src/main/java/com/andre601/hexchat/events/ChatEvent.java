@@ -36,7 +36,7 @@ public class ChatEvent implements Listener{
             return;
         
         String msg = event.getMessage();
-        if(player.hasPermission("hexchat.color.code") || player.hasPermission("hexchat.color.all"))
+        if(player.hasPermission("hexchat.color"))
             msg = ChatColor.translateAlternateColorCodes('&', msg);
         
         event.setCancelled(true);

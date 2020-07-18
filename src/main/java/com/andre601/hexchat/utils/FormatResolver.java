@@ -18,8 +18,6 @@ public class FormatResolver{
     private final HexChat plugin;
     private final Map<String, JSONMessage> formats = new LinkedHashMap<>();
     
-    private final Pattern colorPattern = Pattern.compile("(?<!\\\\)(#[a-fA-F0-9]{6})");
-    
     public FormatResolver(HexChat plugin){
         this.plugin = plugin;
     }
@@ -57,10 +55,8 @@ public class FormatResolver{
                         continue;
                     }
                     
-                    Matcher matcher = colorPattern.matcher(value);
-                    if(matcher.matches()){
-                        color = matcher.group(1);
-                    }
+                    if(Colors.isValid(value))
+                        color = value;
                 }
                 json.color(color);
                 
@@ -137,5 +133,43 @@ public class FormatResolver{
         text = plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
         
         return ChatColor.translateAlternateColorCodes('&', text);
+    }
+    
+    private enum Colors{
+        BLACK(null),
+        DARK_BLUE(null),
+        DARK_GREEN(null),
+        DARK_AQUA(null),
+        DARK_RED(null),
+        DARK_PURPLE(null),
+        GOLD(null),
+        GRAY(null),
+        DARK_GRAY(null),
+        BLUE(null),
+        GREEN(null),
+        AQUA(null),
+        RED(null),
+        LIGHT_PURPLE(null),
+        YELLOW(null),
+        WHITE(null),
+        
+        HEX("#[a-fA-F0-9]{6}");
+        
+        private final Pattern pattern;
+        
+        Colors(String pattern){
+            this.pattern = Pattern.compile("(" + (pattern == null ? this.name().toLowerCase() : pattern) + ")");
+        }
+        
+        public static boolean isValid(String value){
+            for(Colors color : values()){
+                Matcher matcher = color.pattern.matcher(value);
+                
+                if(matcher.matches())
+                    return true;
+            }
+            
+            return false;
+        }
     }
 }
