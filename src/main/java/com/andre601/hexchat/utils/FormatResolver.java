@@ -18,6 +18,8 @@ public class FormatResolver{
     private final HexChat plugin;
     private final Map<String, JSONMessage> formats = new LinkedHashMap<>();
     
+    private final Pattern hexColorPattern = Pattern.compile("(#[a-fA-F0-9]{6})");
+    
     public FormatResolver(HexChat plugin){
         this.plugin = plugin;
     }
@@ -45,7 +47,7 @@ public class FormatResolver{
                 if(text == null || text.isEmpty())
                     continue;
                 
-                json.then(text);
+                json.then(formatString(text));
                 
                 String color = "white";
                 if(section.get("color") != null){
@@ -123,6 +125,11 @@ public class FormatResolver{
     }
     
     private String formatString(String text){
+        Matcher hexColorMatcher = hexColorPattern.matcher(text);
+        if(hexColorMatcher.find()){
+            text = text.replaceAll(hexColorPattern.pattern(), "" + ChatColor.of(hexColorMatcher.group(1)));
+        }
+        
         return ChatColor.translateAlternateColorCodes('&', text);
     }
     
@@ -163,7 +170,7 @@ public class FormatResolver{
         
         public static boolean isValid(String value){
             for(Colors color : values()){
-                Matcher matcher = color.pattern.matcher(value);
+                Matcher matcher = color.pattern.matcher(value.toLowerCase());
                 
                 if(matcher.matches())
                     return true;

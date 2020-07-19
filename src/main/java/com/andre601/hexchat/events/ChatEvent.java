@@ -10,9 +10,15 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ChatEvent implements Listener{
     
     private final HexChat plugin;
+    
+    private final Pattern hexColorPattern = Pattern.compile("(#([a-fA-F0-9]{6}))");
     
     public ChatEvent(HexChat plugin){
         this.plugin = plugin;
@@ -32,12 +38,25 @@ public class ChatEvent implements Listener{
                 format = plugin.getFormatResolver().getFormats().get(name);
         }
         
+        // When the player doesn't have any other formats available will we apply the default one.
         if(format == null)
-            return;
+            format = plugin.getFormatResolver().getFormats().get("default");
         
         String msg = event.getMessage();
-        if(player.hasPermission("hexchat.color"))
+        if(hasPerm(player, "hexchat.color.all", "hexchat.color.code"))
             msg = ChatColor.translateAlternateColorCodes('&', msg);
+
+        Matcher hexColorMatcher = hexColorPattern.matcher(msg);
+        if(hexColorMatcher.find()){
+            StringBuffer buffer = new StringBuffer();
+            do{
+                if(hasPerm(player, "hexchat.color.all", "hexchat.color.hex", "hexchat.color.hex." + hexColorMatcher.group(2)))
+                    hexColorMatcher.appendReplacement(buffer, "" + ChatColor.of(hexColorMatcher.group(1)));
+            }while(hexColorMatcher.find());
+            
+            hexColorMatcher.appendTail(buffer);
+            msg = buffer.toString();
+        }
         
         event.setCancelled(true);
 
@@ -46,6 +65,21 @@ public class ChatEvent implements Listener{
         Player[] players = event.getRecipients().toArray(new Player[0]);
         ReflectionHelper.sendPacket(ReflectionHelper.createTextPacket(json), players);
         
-        plugin.send("<%s> %s", event.getPlayer().getName(), event.getMessage());
+        if(!plugin.getConfig().getBoolean("console.log", true))
+            return;
+        
+        String consoleFormat = plugin.getConfig().getString("console.format");
+        if(consoleFormat == null)
+            consoleFormat = "<%player%> %msg%";
+        
+        plugin.send(
+                consoleFormat.replace("%player%", event.getPlayer().getName())
+                             .replace("%msg%", event.getMessage())
+                             .replace("%world%", event.getPlayer().getWorld().getName())
+        );
+    }
+    
+    private boolean hasPerm(Player player, String... permissions){ 
+        return Arrays.stream(permissions).anyMatch(player::hasPermission);
     }
 }

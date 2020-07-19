@@ -1,11 +1,60 @@
 #
+# |===============|
+# |    Welcome    |
+# |===============|
 #
-# This section allows you to set the various chat formats that can be applied to players with permissions.
+# Welcome in the HexChat config.yml!
+# This config will try to explain as much as possible, so make sure you read the comments here.
 #
-# Each section supports the following inbuilt placeholders of the plugin:
+# |===============|
+# |    Support    |
+# |===============|
+#
+# The best (and fastest) way to receive support is by joining my Discord Server (https://discord.gg/6dazXp6) and
+# go to the #hexchat Text Channel.
+# Alternatively can you ask for help on the Thread on Spigot: https://www.spigotmc.org/threads/447658
+#
+# Bug reports and feature requests are handled through GitHub: https://github.com/Andre601/HexChat/issues
+#
+# Additional information may be found on the wiki: https://wiki.powerplugins.net/wiki/hexchat
+#
+# |====================|
+# |    Placeholders    |
+# |====================|
+#
+# HexChat provises own placeholders that can be used for the different formats, but also for the "format" option of the
+# "console" section below.
+#
+# Placeholders:
 # - %msg%     ->  The message that was send.
-# - %player%  ->  The name of the player.
-# - %world%   ->  The name of the world the player is in.
+# - %player%  ->  The player's name.
+# - %world%   ->  The name of the world.
+#
+# |===============|
+# |    Console    |
+# |===============|
+#
+# Change settings of the console (if it should log messages, look of the message, etc.)
+#
+console:
+  #
+  # Should the colorful HexChat banner be displayed in the Console?
+  #
+  banner: true
+  #
+  # Should messages send by players be logged in the console?
+  #
+  log: true
+  #
+  # How should the message format look like? This is only used when the "log" option above is set to true.
+  #
+  format: '<%player%> %msg%'
+#
+# |===============|
+# |    Formats    |
+# |===============|
+#
+# This section allows you to set the formats that players may use.
 #
 formats:
   #

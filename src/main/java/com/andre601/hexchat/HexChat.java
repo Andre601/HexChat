@@ -21,7 +21,8 @@ public class HexChat extends JavaPlugin{
         saveDefaultConfig();
         PluginManager manager = getServer().getPluginManager();
         
-        sendBanner();
+        if(getConfig().getBoolean("console.banner", true)) 
+            sendBanner();
         
         if(getConfig().get("formats.default") == null){
             sendColor("&cNo format with the name 'default' was defined in the config.yml");

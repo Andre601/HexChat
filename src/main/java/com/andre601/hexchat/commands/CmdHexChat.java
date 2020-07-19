@@ -160,11 +160,29 @@ public class CmdHexChat extends CommandBase{
             sendMsg(player, "Reloading config file...", "gray");
             plugin.reloadConfig();
             
+            if(plugin.getConfig().get("formats.default") == null){
+                sendMsg(player, "Aborting reload! No format called 'default' available!", "red");
+                return;
+            }
+            
             sendMsg(player, "Updating formats...", "gray");
             plugin.getFormatResolver().getFormats().clear();
             plugin.getFormatResolver().loadFormats();
             
             sendMsg(player, "Reload complete!", "green");
+        }else{
+            plugin.sendColor("Reloading config file...");
+            plugin.reloadConfig();
+            
+            if(plugin.getConfig().get("formats.default") == null){
+                plugin.sendColor("&cAborting reload! No format called 'default' available!");
+                return;
+            }
+            
+            plugin.sendColor("Updating formats...");
+            plugin.getFormatResolver().getFormats().clear();
+            plugin.getFormatResolver().loadFormats();
+            plugin.sendColor("&aReload complete!");
         }
     }
     
