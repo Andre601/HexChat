@@ -4,6 +4,7 @@ import com.andre601.hexchat.commands.CmdHexChat;
 import com.andre601.hexchat.events.ChatEvent;
 import com.andre601.hexchat.utils.FormatResolver;
 import me.mattstudios.mf.base.CommandManager;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.PluginManager;
@@ -52,6 +53,9 @@ public class HexChat extends JavaPlugin{
         setupCommands();
         sendColor("Command loaded.");
         
+        sendColor("Sending Metrics to bStats...");
+        setupMetrics();
+        
         sendColor("&aSuccessfully enabled %s v%s", getName(), getDescription().getVersion());
     }
     
@@ -79,6 +83,11 @@ public class HexChat extends JavaPlugin{
         manager.getCompletionHandler().register("#cmds", input -> Arrays.asList("help", "reload", "formats"));
         
         manager.register(new CmdHexChat(this));
+    }
+    
+    private void setupMetrics(){
+        final Metrics metrics = new Metrics(this, 8460);
+        metrics.addCustomChart(new Metrics.SimplePie("format_count", () -> String.valueOf(getFormatResolver().getFormats().size())));
     }
     
     private void sendBanner(){

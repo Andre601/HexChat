@@ -42,7 +42,7 @@ public class FormatResolver{
                 
                 if(section.get("text") == null)
                     continue;
-    
+                
                 String text = section.getString("text");
                 if(text == null || text.isEmpty())
                     continue;
@@ -83,7 +83,7 @@ public class FormatResolver{
                         }
                     }
                 }
-                
+
                 if(section.get("click") != null){
                     if(section.get("click.type") != null){
                         String type = section.getString("click.type");
