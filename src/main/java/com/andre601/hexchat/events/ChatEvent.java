@@ -2,23 +2,24 @@ package com.andre601.hexchat.events;
 
 import com.andre601.hexchat.HexChat;
 import com.andre601.hexchat.utils.ReflectionHelper;
+import me.mattstudios.mfmsg.base.FormatOptions;
+import me.mattstudios.mfmsg.base.Message;
+import me.mattstudios.mfmsg.base.internal.Format;
+import me.mattstudios.mfmsg.base.internal.MessageComponent;
 import me.rayzr522.jsonmessage.JSONMessage;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
 public class ChatEvent implements Listener{
     
     private final HexChat plugin;
-    
-    private final Pattern hexColorPattern = Pattern.compile("(#([a-fA-F0-9]{6}))");
     
     public ChatEvent(HexChat plugin){
         this.plugin = plugin;
@@ -28,6 +29,10 @@ public class ChatEvent implements Listener{
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent event){
         if(event.isCancelled())
+            return;
+        
+        // If no default format exists, don't handle the event.
+        if(!plugin.getFormatResolver().getFormats().containsKey("default"))
             return;
         
         Player player = event.getPlayer();
@@ -42,21 +47,7 @@ public class ChatEvent implements Listener{
         if(format == null)
             format = plugin.getFormatResolver().getFormats().get("default");
         
-        String msg = event.getMessage();
-        if(hasPerm(player, "hexchat.color.all", "hexchat.color.code"))
-            msg = ChatColor.translateAlternateColorCodes('&', msg);
-
-        Matcher hexColorMatcher = hexColorPattern.matcher(msg);
-        if(hexColorMatcher.find()){
-            StringBuffer buffer = new StringBuffer();
-            do{
-                if(hasPerm(player, "hexchat.color.all", "hexchat.color.hex", "hexchat.color.hex." + hexColorMatcher.group(2)))
-                    hexColorMatcher.appendReplacement(buffer, "" + ChatColor.of(hexColorMatcher.group(1)));
-            }while(hexColorMatcher.find());
-            
-            hexColorMatcher.appendTail(buffer);
-            msg = buffer.toString();
-        }
+        String msg = parse(player, event.getMessage());
         
         event.setCancelled(true);
 
@@ -81,5 +72,31 @@ public class ChatEvent implements Listener{
     
     private boolean hasPerm(Player player, String... permissions){ 
         return Arrays.stream(permissions).anyMatch(player::hasPermission);
+    }
+    private String parse(Player player, String msg){
+        List<Format> formats = new ArrayList<>();
+        
+        if(player.hasPermission("hexchat.markdown.bold"))
+            formats.add(Format.BOLD);
+        
+        if(player.hasPermission("hexchat.markdown.italic"))
+            formats.add(Format.ITALIC);
+        
+        if(player.hasPermission("hexchat.markdown.underline"))
+            formats.add(Format.UNDERLINE);
+        
+        if(player.hasPermission("hexchat.markdown.strikethrough"))
+            formats.add(Format.STRIKETHROUGH);
+        
+        if(hasPerm(player, "hexchat.markdown.obfuscated", "hexchat.markdown.magic"))
+            formats.add(Format.OBFUSCATED);
+
+        if(player.hasPermission("hexchat.color.code"))
+            formats.add(Format.COLOR);
+
+        Message message = Message.create(FormatOptions.builder().with(formats.toArray(new Format[0])));
+        MessageComponent component = message.parse(msg);
+        
+        return component.toString();
     }
 }

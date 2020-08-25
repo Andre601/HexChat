@@ -1,6 +1,6 @@
 name: HexChat
 author: Andre_601
-version: '1.3.1'
+version: '1.4.0'
 
 api-version: '1.16'
 
@@ -9,25 +9,30 @@ main: 'com.andre601.hexchat.HexChat'
 softdepend:
 - PlaceholderAPI
 
-permissions: 
-  hexchat.format.default:
-    default: true
-    description: 'The default permission for the chat format'
+permissions:
+  # ==========================
+  # Admin Permissions
+  # ==========================
   hexchat.*:
     default: op
     description: 'Gives access to all HexChat permissions'
-    children: 
+    children:
       hexchat.admin: true
   hexchat.admin:
     default: op
     description: 'Gives access to all HexChat permissions'
-    children: 
+    children:
       hexchat.command.*: true
       hexchat.color: true
+      hexchat.format: true
+
+  # ==========================
+  # Command Permissions
+  # ==========================
   hexchat.command.*:
     default: op
     description: 'Gives access to all HexChat Command permissions'
-    children: 
+    children:
       hexchat.command.help: true
       hexchat.command.reload: true
       hexchat.command.formats: true
@@ -40,25 +45,62 @@ permissions:
   hexchat.command.formats:
     default: op
     description: 'Gives access to /hexchat formats'
-  hexchat.color.all:
+
+  # ==========================
+  # Color Permissions
+  # ==========================
+  hexchat.color.*:
     default: op
     description: 'Allows the usage of color, formatting and hex color codes in messages.'
-    children: 
+    children:
       hexchat.color: true
   hexchat.color:
     default: op
     description: 'Allows the usage of color, formatting and hex color codes in messages.'
-    children: 
+    children:
       hexchat.color.code: true
-      hexchat.color.hex.*: true
   hexchat.color.code:
     default: op
-    description: 'Allows the usage of color and formatting codes in messages.'
-  hexchat.color.hex.*:
+    description: 'Allows the usage of color and formatting codes (&[a-fl-o0-9]) in messages.'
+
+  # ==========================
+  # Format Permissions
+  # ==========================
+  hexchat.markdown.*:
     default: op
-    description: 'Allows the usage of all hex colors in messages.'
-    children: 
-      hexchat.color.hex: true
-  hexchat.color.hex:
+    description: 'Gives access to all Markdown formatting options.'
+    children:
+      hexchat.markdown.all: true
+  hexchat.markdown.all:
     default: op
-    description: 'Allows the usage of all hex colors in messages.'
+    description: 'Gives access to all Markdown formatting options.'
+    children:
+      hexchat.markdown: true
+  hexchat.markdown:
+    default: op
+    description: 'Gives access to all Markdown formatting options.'
+    children:
+      hexchat.markdown.bold: true
+      hexchat.markdown.italic: true
+      hexchat.markdown.magic: true
+      hexchat.markdown.obfuscated: true
+      hexchat.markdown.strikethrough: true
+      hexchat.markdown.underline: true
+  hexchat.markdown.bold:
+    default: op
+    description: 'Gives access for using bold in markdown form (**bold**)'
+  hexchat.markdown.italic:
+    default: op
+    description: 'Gives access for using italic in markdown form (*italic*)'
+  hexchat.markdown.magic:
+    default: op
+    description: 'Gives access for using obfuscated in markdown form (||obfuscated||)'
+  hexchat.markdown.obfuscated:
+    default: op
+    description: 'Gives access for using obfuscated in markdown form (||obfuscated||)'
+  hexchat.markdown.strikethrough:
+    default: op
+    description: 'Gives access for using strikethrough in markdown form (~~strikethrough~~)'
+  hexchat.markdown.underline:
+    default: op
+    description: 'Gives access for using underline in markdown form (__underline__)'
