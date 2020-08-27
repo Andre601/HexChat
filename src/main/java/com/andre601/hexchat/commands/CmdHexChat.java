@@ -1,13 +1,16 @@
 package com.andre601.hexchat.commands;
 
 import com.andre601.hexchat.HexChat;
-import com.andre601.hexchat.utils.ReflectionHelper;
 import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.CommandBase;
+import me.mattstudios.mfmsg.base.Message;
+import me.mattstudios.mfmsg.base.internal.MessageComponent;
 import me.rayzr522.jsonmessage.JSONMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Map;
 
 @Command("hexchat")
 @Alias({"hchat", "hc"})
@@ -167,7 +170,7 @@ public class CmdHexChat extends CommandBase{
             
             sendMsg(player, "Updating formats...", "gray");
             plugin.getFormatResolver().getFormats().clear();
-            plugin.getFormatResolver().loadFormats();
+            plugin.getFormatResolver().loadingFormats();
             
             sendMsg(player, "Reload complete!", "green");
         }else{
@@ -181,7 +184,7 @@ public class CmdHexChat extends CommandBase{
             
             plugin.sendColor("Updating formats...");
             plugin.getFormatResolver().getFormats().clear();
-            plugin.getFormatResolver().loadFormats();
+            plugin.getFormatResolver().loadingFormats();
             plugin.sendColor("&aReload complete!");
         }
     }
@@ -192,17 +195,13 @@ public class CmdHexChat extends CommandBase{
         if(!player.hasPermission("hexchat.command.formats"))
             return;
         
-        JSONMessage title = getPrefix(true)
-                .then("Loading formats...")
-                .color("WHITE");
+        sendMsg(player, "Loading formats...", "white");
         
-        title.send(player);
-        
-        for(String format : plugin.getFormatResolver().getFormats().keySet()){
-            JSONMessage json = plugin.getFormatResolver().getFormats().get(format);
-            String result = plugin.getFormatResolver().parseString(player, json.toString()).replace("%msg%", "My message");
-
-            ReflectionHelper.sendPacket(ReflectionHelper.createTextPacket(result), player);
+        for(Map.Entry<String, String> formatMap : plugin.getFormatResolver().getFormats().entrySet()){
+            MessageComponent component = Message.create()
+                    .parse(plugin.getFormatResolver().formatString(player, formatMap.getValue().replace("%msg%", "My Message")));
+            
+            component.sendMessage(player);
         }
     }
     
@@ -246,7 +245,7 @@ public class CmdHexChat extends CommandBase{
             plugin.sendColor("&bDescription:");
             plugin.sendColor("&f%s", desc);
             plugin.sendColor("");
-            plugin.sendColor("&bPermission: &f%shexchat.command.", command.toLowerCase());
+            plugin.sendColor("&bPermission: &fhexchat.command.%s", command.toLowerCase());
         }
     }
     

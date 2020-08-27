@@ -1,6 +1,6 @@
 name: HexChat
 author: Andre_601
-version: '1.4.0'
+version: '1.5.0'
 
 api-version: '1.16'
 
@@ -24,7 +24,8 @@ permissions:
     children:
       hexchat.command.*: true
       hexchat.color: true
-      hexchat.format: true
+      hexchat.format.*: true
+      hexchat.markdown: true
 
   # ==========================
   # Command Permissions

@@ -2,10 +2,9 @@ package com.andre601.hexchat.utils;
 
 import com.andre601.hexchat.HexChat;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.rayzr522.jsonmessage.JSONMessage;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,167 +15,175 @@ import java.util.regex.Pattern;
 public class FormatResolver{
     
     private final HexChat plugin;
-    private final Map<String, JSONMessage> formats = new LinkedHashMap<>();
-    
-    private final Pattern hexColorPattern = Pattern.compile("(#[a-fA-F0-9]{6})");
+    private final Map<String, String> formats = new LinkedHashMap<>();
     
     public FormatResolver(HexChat plugin){
         this.plugin = plugin;
     }
     
-    public void loadFormats(){
+    public void loadingFormats(){
         ConfigurationSection formatsSection = plugin.getConfig().getConfigurationSection("formats");
         if(formatsSection == null)
             return;
         
-        for(String formatKey : formatsSection.getKeys(false)){
-            JSONMessage json = JSONMessage.create();
-            ConfigurationSection formatSection = formatsSection.getConfigurationSection(formatKey);
+        for(String formatName : formatsSection.getKeys(false)){
+            StringBuilder formatBuilder = new StringBuilder();
+            
+            ConfigurationSection formatSection = formatsSection.getConfigurationSection(formatName);
             if(formatSection == null)
                 continue;
             
-            for(String sectionKey : formatSection.getKeys(false)){
-                ConfigurationSection section = formatSection.getConfigurationSection(sectionKey);
+            for(String key : formatSection.getKeys(false)){
+                ConfigurationSection section = formatSection.getConfigurationSection(key);
                 if(section == null)
-                    continue;
-                
-                if(section.get("text") == null)
                     continue;
                 
                 String text = section.getString("text");
                 if(text == null || text.isEmpty())
                     continue;
                 
-                json.then(formatString(text));
+                String color = section.getString("color");
+                if(color != null && !color.isEmpty())
+                    text = Colors.getColor(color) + escape(text);
+                else
+                    text = "&f" + escape(text);
                 
-                String color = "white";
-                if(section.get("color") != null){
-                    String value = section.getString("color");
-                    if(value == null || value.isEmpty()){
-                        json.color(color);
-                        continue;
+                String hover = null;
+                String click = null;
+                
+                boolean hasHover = false;
+                boolean hasClick = false;
+                
+                List<String> hoverText = section.getStringList("hover");
+                if(!hoverText.isEmpty()){
+                    hover = "hover: " + String.join("\\n", hoverText);
+                    hasHover = true;
+                }
+                
+                String clickType = section.getString("click.type");
+                if(clickType != null && !clickType.isEmpty()){
+                    String value = section.getString("click.value");
+                    switch(clickType.toLowerCase()){
+                        case "command":
+                        case "execute":
+                            if(value != null && !value.isEmpty()){
+                                click = "command: " + value;
+                                hasClick = true;
+                            }
+                            break;
+                        
+                        case "suggest":
+                            if(value != null && !value.isEmpty()){
+                                click = "suggest: " + value;
+                                hasClick = true;
+                            }
+                            break;
+                        
+                        case "copy":
+                            if(value != null && !value.isEmpty()){
+                                click = "clipboard: " + value;
+                                hasClick = true;
+                            }
+                            break;
+                        
+                        case "url":
+                            if(value != null && !value.isEmpty()){
+                                click = "url: " + value;
+                                hasClick = true;
+                            }
+                            break;
+                    }
+                }
+                
+                if(hasHover || hasClick){
+                    formatBuilder.append("[").append(text).append("](");
+                    
+                    if(hasHover)
+                        formatBuilder.append(hover);
+                    
+                    if(hasClick){
+                        if(hasHover)
+                            formatBuilder.append("|");
+                        
+                        formatBuilder.append(click);
                     }
                     
-                    if(Colors.isValid(value))
-                        color = value;
-                }
-                json.color(color);
-                
-                if(section.get("hover") != null){
-                    if(section.get("hover.type") != null){
-                        String type = section.getString("hover.type");
-                        if(type != null && !type.isEmpty()){
-                            switch(type.toLowerCase()){
-                                case "text":
-                                    List<String> values = section.getStringList("hover.value");
-                                    if(!values.isEmpty())
-                                        json.tooltip(formatList(values));
-                                    break;
-                                
-                                case "achievement":
-                                case "advancement":
-                                    String value = section.getString("hover.value");
-                                    if(value != null && !value.isEmpty())
-                                        json.achievement(value);
-                                    break;
-                            }
-                        }
-                    }
-                }
-
-                if(section.get("click") != null){
-                    if(section.get("click.type") != null){
-                        String type = section.getString("click.type");
-                        if(type != null && !type.isEmpty()){
-                            switch(type.toLowerCase()){
-                                case "execute":
-                                    String cmd = section.getString("click.value");
-                                    if(cmd != null && !cmd.isEmpty())
-                                        json.runCommand(cmd);
-                                    break;
-                                
-                                case "suggest":
-                                    String suggestion = section.getString("click.value");
-                                    if(suggestion != null && !suggestion.isEmpty())
-                                        json.suggestCommand(suggestion);
-                                    break;
-                                
-                                case "copy":
-                                    String copy = section.getString("click.value");
-                                    if(copy != null && !copy.isEmpty())
-                                        json.copyText(copy);
-                                    break;
-                            }
-                        }
-                    }
+                    formatBuilder.append(")");
+                    continue;
                 }
                 
-                formats.put(formatKey, json);
+                formatBuilder.append(text);
             }
+            
+            formats.put(formatName, formatBuilder.toString());
         }
     }
 
-    public Map<String, JSONMessage> getFormats(){
+    public Map<String, String> getFormats(){
         return formats;
     }
-
-    private String formatList(List<String> list){
-        return formatString(String.join("\n", list));
+    
+    public String formatString(Player player, String text){
+        return formatString(player, text, true);
     }
     
-    private String formatString(String text){
-        Matcher hexColorMatcher = hexColorPattern.matcher(text);
-        if(hexColorMatcher.find()){
-            text = text.replaceAll(hexColorPattern.pattern(), "" + ChatColor.of(hexColorMatcher.group(1)));
-        }
+    public String formatString(Player player, String text, boolean escape){
+        text = text.replace("%player%", escape ? escapeAll(player.getName()) : player.getName())
+                   .replace("%world%", escape ? escapeAll(player.getWorld().getName()) : player.getWorld().getName());
         
-        return ChatColor.translateAlternateColorCodes('&', text);
+        return plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
     }
     
-    public String parseString(Player player, String text){
-        text = text.replace("%player%", player.getName())
-                   .replace("%world%", player.getWorld().getName());
-        
-        text = plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
-        
-        return ChatColor.translateAlternateColorCodes('&', text);
+    private String escape(String text){
+        return text.replace("[", "\\[")
+                   .replace("]", "\\]")
+                   .replace("(", "\\(")
+                   .replace(")", "\\)")
+                   .replace("|", "\\|");
+    }
+    
+    private String escapeAll(String text){
+        return escape(text).replace("_", "\\_")
+                           .replace("__", "\\__");
     }
     
     private enum Colors{
-        BLACK(null),
-        DARK_BLUE(null),
-        DARK_GREEN(null),
-        DARK_AQUA(null),
-        DARK_RED(null),
-        DARK_PURPLE(null),
-        GOLD(null),
-        GRAY(null),
-        DARK_GRAY(null),
-        BLUE(null),
-        GREEN(null),
-        AQUA(null),
-        RED(null),
-        LIGHT_PURPLE(null),
-        YELLOW(null),
-        WHITE(null),
+        BLACK       (null, "&0"),
+        DARK_BLUE   (null, "&1"),
+        DARK_GREEN  (null, "&2"),
+        DARK_AQUA   (null, "&3"),
+        DARK_RED    (null, "&4"),
+        DARK_PURPLE (null, "&5"),
+        GOLD        (null, "&6"),
+        GRAY        (null, "&7"),
+        DARK_GRAY   (null, "&8"),
+        BLUE        (null, "&9"),
+        GREEN       (null, "&a"),
+        AQUA        (null, "&b"),
+        RED         (null, "&c"),
+        LIGHT_PURPLE(null, "&d"),
+        YELLOW      (null, "&e"),
+        WHITE       (null, "&f"),
         
-        HEX("#[a-fA-F0-9]{6}");
+        HEX("#[a-fA-F0-9]{6}", null);
         
         private final Pattern pattern;
+        private final String color;
         
-        Colors(String pattern){
+        Colors(String pattern, String color){
             this.pattern = Pattern.compile("(" + (pattern == null ? this.name().toLowerCase() : pattern) + ")");
+            this.color = color;
         }
         
-        public static boolean isValid(String value){
+        public static String getColor(String value){
             for(Colors color : values()){
                 Matcher matcher = color.pattern.matcher(value.toLowerCase());
                 
                 if(matcher.matches())
-                    return true;
+                    return color.color == null ? "&" + matcher.group(1) : color.color;
             }
             
-            return false;
+            return "&f";
         }
     }
 }

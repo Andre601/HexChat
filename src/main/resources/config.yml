@@ -94,25 +94,11 @@ formats:
       #
       color: '#2980B9'
       #
-      # Allows you to apply a hover action for this section.
+      # Allows you to apply a hover text to this section.
       #
       hover:
-        #
-        # What type of hover action this would be.
-        #
-        # Available options:
-        # - text        -> Display a text on hover.
-        # - achievement -> Display an achievement/advancement on hover.
-        #
-        type: 'text'
-        #
-        # The value(s) to display.
-        # The type of this field depends on the above set type.
-        # 'text' makes this a String list and 'achievement' makes this a single String.
-        #
-        value:
-        - '&7This Player is currently in'
-        - '&7the world &b%world%'
+      - '&7This Player is currently in'
+      - '&7the world &b%world%'
     worldEnd:
       #
       # The text to display in chat.
@@ -140,24 +126,10 @@ formats:
       #
       color: '#00FF00'
       #
-      # Allows you to apply a hover action for this section.
+      # Allows you to apply a hover text to this section.
       #
       hover:
-        #
-        # What type of hover action this would be.
-        #
-        # Available options:
-        # - text        -> Display a text on hover.
-        # - achievement -> Display an achievement/advancement on hover.
-        #
-        type: 'text'
-        #
-        # The value(s) to display.
-        # The type of this field depends on the above set type.
-        # 'text' makes this a String list and 'achievement' makes this a single String.
-        #
-        value:
-        - '&7Click to send the player a message!'
+      - '&7Click to send the player a message!'
       #
       # Allows you to apply a click action for this section.
       #

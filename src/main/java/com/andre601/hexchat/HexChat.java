@@ -42,7 +42,7 @@ public class HexChat extends JavaPlugin{
         
         formatResolver = new FormatResolver(this);
         sendColor("Loading formats...");
-        formatResolver.loadFormats();
+        formatResolver.loadingFormats();
         sendColor("All formats have been loaded.");
 
         sendColor("Loading Events...");

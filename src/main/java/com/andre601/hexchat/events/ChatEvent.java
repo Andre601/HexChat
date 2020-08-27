@@ -1,25 +1,22 @@
 package com.andre601.hexchat.events;
 
 import com.andre601.hexchat.HexChat;
-import com.andre601.hexchat.utils.ReflectionHelper;
-import me.mattstudios.mfmsg.base.FormatOptions;
 import me.mattstudios.mfmsg.base.Message;
-import me.mattstudios.mfmsg.base.internal.Format;
 import me.mattstudios.mfmsg.base.internal.MessageComponent;
-import me.rayzr522.jsonmessage.JSONMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public class ChatEvent implements Listener{
     
     private final HexChat plugin;
+    
+    private final Pattern chatColor = Pattern.compile("(?i)&[0-9A-FK-OR]");
     
     public ChatEvent(HexChat plugin){
         this.plugin = plugin;
@@ -36,25 +33,41 @@ public class ChatEvent implements Listener{
             return;
         
         Player player = event.getPlayer();
-
-        JSONMessage format = null;
-        for(String name : plugin.getFormatResolver().getFormats().keySet()){
-            if(player.hasPermission("hexchat.format." + name))
-                format = plugin.getFormatResolver().getFormats().get(name);
+        
+        String format = null;
+        for(Map.Entry<String, String> formatMap : plugin.getFormatResolver().getFormats().entrySet()){
+            if(player.hasPermission("hexchat.format." + formatMap.getKey()))
+                format = formatMap.getValue();
         }
         
-        // When the player doesn't have any other formats available will we apply the default one.
         if(format == null)
             format = plugin.getFormatResolver().getFormats().get("default");
         
-        String msg = parse(player, event.getMessage());
+        String msg = event.getMessage();
+        
+        if(!player.hasPermission("hexchat.markdown.bold"))
+            msg = escape(msg, "**");
+        if(!player.hasPermission("hexchat.markdown.italic"))
+            msg = escape(msg, "*", "_");
+        if(!player.hasPermission("hexchat.markdown.magic") && !player.hasPermission("hexchat.markdown.obfuscated"))
+            msg = escape(msg, "||");
+        if(!player.hasPermission("hexchat.markdown.strikethrough"))
+            msg = escape(msg, "~~");
+        if(!player.hasPermission("hexchat.markdown.underline"))
+            msg = escape(msg, "__");
+        
+        if(!player.hasPermission("hexchat.color.code"))
+            msg = chatColor.matcher(msg).replaceAll("");
+        
+        format = format.replace("%msg%", msg);
+        
+        final MessageComponent component = Message.create()
+                .parse(plugin.getFormatResolver().formatString(event.getPlayer(), format));
         
         event.setCancelled(true);
-
-        String json = plugin.getFormatResolver().parseString(player, format.toString()).replace("%msg%", msg);
-
-        Player[] players = event.getRecipients().toArray(new Player[0]);
-        ReflectionHelper.sendPacket(ReflectionHelper.createTextPacket(json), players);
+        
+        for(Player recipient : event.getRecipients())
+            component.sendMessage(recipient);
         
         if(!plugin.getConfig().getBoolean("console.log", true))
             return;
@@ -63,40 +76,14 @@ public class ChatEvent implements Listener{
         if(consoleFormat == null)
             consoleFormat = "<%player%> %msg%";
         
-        plugin.send(
-                consoleFormat.replace("%player%", event.getPlayer().getName())
-                             .replace("%msg%", event.getMessage())
-                             .replace("%world%", event.getPlayer().getWorld().getName())
-        );
+        consoleFormat = consoleFormat.replace("%msg%", msg);
+        plugin.send(plugin.getFormatResolver().formatString(event.getPlayer(), consoleFormat, false));
     }
     
-    private boolean hasPerm(Player player, String... permissions){ 
-        return Arrays.stream(permissions).anyMatch(player::hasPermission);
-    }
-    private String parse(Player player, String msg){
-        List<Format> formats = new ArrayList<>();
+    private String escape(String msg, String... replaces){
+        for(String replace : replaces)
+            msg = msg.replace(replace, "\\" + replace);
         
-        if(player.hasPermission("hexchat.markdown.bold"))
-            formats.add(Format.BOLD);
-        
-        if(player.hasPermission("hexchat.markdown.italic"))
-            formats.add(Format.ITALIC);
-        
-        if(player.hasPermission("hexchat.markdown.underline"))
-            formats.add(Format.UNDERLINE);
-        
-        if(player.hasPermission("hexchat.markdown.strikethrough"))
-            formats.add(Format.STRIKETHROUGH);
-        
-        if(hasPerm(player, "hexchat.markdown.obfuscated", "hexchat.markdown.magic"))
-            formats.add(Format.OBFUSCATED);
-
-        if(player.hasPermission("hexchat.color.code"))
-            formats.add(Format.COLOR);
-
-        Message message = Message.create(FormatOptions.builder().with(formats.toArray(new Format[0])));
-        MessageComponent component = message.parse(msg);
-        
-        return component.toString();
+        return msg;
     }
 }
