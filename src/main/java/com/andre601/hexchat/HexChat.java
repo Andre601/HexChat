@@ -15,6 +15,7 @@ import java.util.Arrays;
 public class HexChat extends JavaPlugin{
     
     private boolean placeholderApiEnabled = false;
+    
     private FormatResolver formatResolver;
     
     @Override
@@ -62,7 +63,7 @@ public class HexChat extends JavaPlugin{
     public boolean isPlaceholderApiEnabled(){
         return placeholderApiEnabled;
     }
-    
+
     public FormatResolver getFormatResolver(){
         return formatResolver;
     }

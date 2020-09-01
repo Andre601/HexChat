@@ -4,21 +4,23 @@ plugins {
 }
 
 group = 'com.andre601'
-version = new Version(major: 1, minor: 5, revision: 0)
+version = new Version(major: 1, minor: 5, revision: 2)
 
-sourceCompatibility = 1.8
+jar {
+    sourceCompatibility = 1.8
+}
 
 repositories {
     mavenCentral()
     maven {url = 'http://repo.extendedclip.com/content/repositories/placeholderapi/'}
     maven{ url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven{ url = 'https://rayzr.dev/repo/' }
-    maven{ url = 'https://repo.codemc.org/repository/maven-public' }
+    maven{ url = 'https://repo.codemc.org/repository/maven-public/' }
 }
 
 dependencies {
     compileOnly(group: 'me.clip', name: 'placeholderapi', version: '2.10.9')
-    compileOnly(group: 'org.spigotmc', name: 'spigot-api', version: '1.16.1-R0.1-SNAPSHOT')
+    compileOnly(group: 'org.spigotmc', name: 'spigot-api', version: '1.16.2-R0.1-SNAPSHOT')
     
     implementation(group: 'me.rayzr522', name: 'jsonmessage', version: '1.2.1')
     implementation(group: 'org.bstats', name: 'bstats-bukkit', version: '1.7')

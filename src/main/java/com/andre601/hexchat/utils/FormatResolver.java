@@ -4,7 +4,6 @@ import com.andre601.hexchat.HexChat;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.LinkedHashMap;
 import java.util.List;

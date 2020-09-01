@@ -31,26 +31,6 @@
 # - %world%   ->  The name of the world.
 #
 # |===============|
-# |    Console    |
-# |===============|
-#
-# Change settings of the console (if it should log messages, look of the message, etc.)
-#
-console:
-  #
-  # Should the colorful HexChat banner be displayed in the Console?
-  #
-  banner: true
-  #
-  # Should messages send by players be logged in the console?
-  #
-  log: true
-  #
-  # How should the message format look like? This is only used when the "log" option above is set to true.
-  #
-  format: '<%player%> %msg%'
-#
-# |===============|
 # |    Formats    |
 # |===============|
 #

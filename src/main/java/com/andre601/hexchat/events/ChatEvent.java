@@ -59,25 +59,18 @@ public class ChatEvent implements Listener{
         if(!player.hasPermission("hexchat.color.code"))
             msg = chatColor.matcher(msg).replaceAll("");
         
-        format = format.replace("%msg%", msg);
+        format = format.replace("%msg%", msg)
+                .replaceAll("\\{(#[a-fA-F0-9]{6})}", "<$1>");
         
         final MessageComponent component = Message.create()
                 .parse(plugin.getFormatResolver().formatString(event.getPlayer(), format));
-        
-        event.setCancelled(true);
-        
+
+
         for(Player recipient : event.getRecipients())
             component.sendMessage(recipient);
         
-        if(!plugin.getConfig().getBoolean("console.log", true))
-            return;
-        
-        String consoleFormat = plugin.getConfig().getString("console.format");
-        if(consoleFormat == null)
-            consoleFormat = "<%player%> %msg%";
-        
-        consoleFormat = consoleFormat.replace("%msg%", msg);
-        plugin.send(plugin.getFormatResolver().formatString(event.getPlayer(), consoleFormat, false));
+        // Clear recipients so that the original message won't be send
+        event.getRecipients().clear();
     }
     
     private String escape(String msg, String... replaces){
