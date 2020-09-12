@@ -127,10 +127,12 @@ public class FormatResolver{
     }
     
     public String formatString(Player player, String text, boolean escape){
-        text = text.replace("%player%", escape ? escapeAll(player.getName()) : player.getName())
-                   .replace("%world%", escape ? escapeAll(player.getWorld().getName()) : player.getWorld().getName());
+        if(plugin.isPlaceholderApiEnabled())
+            text = PlaceholderAPI.setPlaceholders(player, text);
         
-        return plugin.isPlaceholderApiEnabled() ? PlaceholderAPI.setPlaceholders(player, text) : text;
+        return text.replace("%player%", escape ? escapeAll(player.getName()) : player.getName())
+                   .replace("%world%", escape ? escapeAll(player.getWorld().getName()) : player.getWorld().getName())
+                   .replaceAll("\\{(#[a-fA-F0-9]{6})}", "<$1>");
     }
     
     private String escape(String text){

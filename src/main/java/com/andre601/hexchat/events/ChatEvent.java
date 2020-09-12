@@ -59,8 +59,7 @@ public class ChatEvent implements Listener{
         if(!player.hasPermission("hexchat.color.code"))
             msg = chatColor.matcher(msg).replaceAll("");
         
-        format = format.replace("%msg%", msg)
-                .replaceAll("\\{(#[a-fA-F0-9]{6})}", "<$1>");
+        format = format.replace("%msg%", msg);
         
         final MessageComponent component = Message.create()
                 .parse(plugin.getFormatResolver().formatString(event.getPlayer(), format));
