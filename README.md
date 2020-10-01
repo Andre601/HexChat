@@ -1,3 +1,6 @@
+> # Discontinued
+> This plugin was discontinued due to multiple bugs and unwanted side-effects which I can't fix on my own.
+
 # HexChat
 *HexChat is a chat plugin that implements support for HEX colors to customize your chat beyond the usual color and formatting codes.*
 
